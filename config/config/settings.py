@@ -8,7 +8,14 @@ SECRET_KEY = 'django-insecure-4crdsf^@_%i9zc-2r@voim8m*#cn9bof0cyy^3kiu-++j-y!#4
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'DESKTOP-IJJ331O', 'desktop-ijj331o']
+
+
+PAYMENT_METHOD_CHOICES = [
+    ('cash', 'Cash'),
+    ('transfer', 'Bank Transfer'),
+    ('credit_card', 'Credit Card'),
+]
 
 
 INSTALLED_APPS = [
@@ -21,6 +28,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'users',
     'lms',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -93,3 +101,10 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.CustomUser'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+}
