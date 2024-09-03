@@ -10,6 +10,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from .models import CustomUser
 from django.contrib.auth import get_user_model
+from .permissions import IsOwnerOrModerator
 
 
 class PaymentViewSet(viewsets.ModelViewSet):
@@ -19,6 +20,10 @@ class PaymentViewSet(viewsets.ModelViewSet):
     filterset_fields = ['paid_course', 'paid_lesson', 'payment_method']
     ordering_fields = ['payment_date']
     ordering = ['-payment_date']
+    permission_classes = [IsAuthenticated, IsOwnerOrModerator]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 class RegisterView(generics.CreateAPIView):

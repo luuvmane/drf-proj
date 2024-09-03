@@ -25,7 +25,11 @@ class Payment(models.Model):
         ('cash', 'Cash'),
         ('transfer', 'Bank Transfer'),
     ]
-
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='payments'
+    )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     payment_date = models.DateField()
     paid_course = models.ForeignKey(Course, null=True, blank=True, on_delete=models.CASCADE)
