@@ -2,7 +2,8 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
 from lms.models import Course, Lesson
-from .models import Payments
+from .models import Payment
+
 
 class PaymentTests(TestCase):
     def setUp(self):
@@ -41,11 +42,11 @@ class PaymentTests(TestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.post('/api/payments/', self.valid_payload, format='json')
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(Payments.objects.count(), 1)
-        self.assertEqual(Payments.objects.get().payment_amount, 100.00)
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertEqual(Payment.objects.get().payment_amount, 100.00)
 
     def test_create_payment_invalid(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.post('/api/payments/', self.invalid_payload, format='json')
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(Payments.objects.count(), 0)
+        self.assertEqual(Payment.objects.count(), 0)

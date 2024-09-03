@@ -1,15 +1,20 @@
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Course, Lesson, Payment
-from .serializers import CourseSerializer, LessonSerializer, PaymentsSerializer
+from .models import Course, Lesson, Subscription
+from .serializers import CourseSerializer, LessonSerializer, SubscriptionSerializer
 from .permissions import IsOwnerOrModerator
+from users.models import Payment
+from users.serializers import PaymentsSerializer
+from rest_framework import filters
+from .paginators import CoursePagination, LessonPagination
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrModerator]
+    pagination_class = CoursePagination
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -29,6 +34,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrModerator]
+    pagination_class = LessonPagination
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -48,6 +54,7 @@ class LessonListCreateView(generics.ListCreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrModerator]
+    pagination_class = LessonPagination
 
     def get_queryset(self):
         """
@@ -97,3 +104,23 @@ class PaymentViewSet(viewsets.ModelViewSet):
         if self.request.user.groups.filter(name='Moderators').exists():
             return queryset
         return queryset.filter(owner=self.request.user)
+
+
+class SubscriptionCreateView(generics.CreateAPIView):
+    queryset = Subscription.objects.all()
+    serializer_class = SubscriptionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class SubscriptionDeleteView(generics.DestroyAPIView):
+    queryset = Subscription.objects.all()
+    serializer_class = SubscriptionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        user = self.request.user
+        course_id = self.kwargs.get('course_id')
+        return Subscription.objects.get(user=user, course_id=course_id)

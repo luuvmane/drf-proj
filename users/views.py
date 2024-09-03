@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters
+from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Payment
 from .serializers import PaymentsSerializer
