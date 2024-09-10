@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'lms',
     'django_filters',
     'rest_framework_simplejwt',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -105,9 +106,8 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 from datetime import timedelta
@@ -124,3 +124,15 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
 }
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API Документация',
+    'DESCRIPTION': 'Описание ',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
+
+STRIPE_SECRET_KEY = 'sk_test_51PxW4nP2RjcJaduwNFzL8U266Z39xPuXCu9KhPY9UC6CnA0ehGZ4ERN5WspYTgOAE1aD3mQiomDQa2FCTpL21d6200HagMu2du'
+STRIPE_PUBLIC_KEY = 'pk_test_51PxW4nP2RjcJaduwmjmc5YRXaqhxCJZEbdsXuL1gCeDXE4vQBSRHtgbELIHXRtCRY6qDMpnn8axf9THh271j5raL00H08ut1qI'

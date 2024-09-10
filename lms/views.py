@@ -8,6 +8,25 @@ from users.models import Payment
 from users.serializers import PaymentsSerializer
 from rest_framework import filters
 from .paginators import CoursePagination, LessonPagination
+from drf_spectacular.utils import extend_schema
+from rest_framework.views import APIView
+from rest_framework.response import Response
+import stripe
+from django.http import JsonResponse
+from django.conf import settings
+
+
+class LessonView(APIView):
+
+    @extend_schema(
+        request=LessonSerializer,
+        responses={201: LessonSerializer},
+        description='Создание нового урока',
+        tags=['Уроки'],
+    )
+    def post(self, request):
+        # логика создания урока
+        return Response(status=201)
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -124,3 +143,48 @@ class SubscriptionDeleteView(generics.DestroyAPIView):
         user = self.request.user
         course_id = self.kwargs.get('course_id')
         return Subscription.objects.get(user=user, course_id=course_id)
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+def create_product(request):
+    try:
+        product = stripe.Product.create(
+            name="My Course",
+            description="This is an example course",
+        )
+        return JsonResponse({"product_id": product.id})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+
+def create_price(request):
+    try:
+        price = stripe.Price.create(
+            product="prod_123",  # ID продукта
+            unit_amount=2000,  # Цена в центах ($20.00)
+            currency="usd",
+        )
+        return JsonResponse({"price_id": price.id})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+
+def create_checkout_session(request):
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    'price': 'price_123',  # ID цены
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            success_url='http://localhost:8000/success/',
+            cancel_url='http://localhost:8000/cancel/',
+        )
+        return JsonResponse({'id': session.id})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
