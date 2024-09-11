@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import CourseViewSet, LessonListCreateView, LessonRetrieveUpdateDestroyView
 from .views import SubscriptionCreateView, SubscriptionDeleteView
 from . import views
+from .views import CreatePaymentSessionView
 
 router = DefaultRouter()
 router.register(r'courses', CourseViewSet)
@@ -13,7 +14,5 @@ urlpatterns = [
     path('lessons/<int:pk>/', LessonRetrieveUpdateDestroyView.as_view(), name='lesson-retrieve-update-destroy'),
     path('subscriptions/', SubscriptionCreateView.as_view(), name='subscription-create'),
     path('subscriptions/<int:course_id>/', SubscriptionDeleteView.as_view(), name='subscription-delete'),
-    path('create-product/', views.create_product, name='create_product'),
-    path('create-price/', views.create_price, name='create_price'),
-    path('create-checkout-session/', views.create_checkout_session, name='create_checkout_session'),
+    path('create-payment-session/', CreatePaymentSessionView.as_view(), name='create-payment-session'),
 ]
