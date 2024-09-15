@@ -10,10 +10,12 @@ from rest_framework import filters
 from .paginators import CoursePagination, LessonPagination
 from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
-from rest_framework.response import Response
 import stripe
 from django.http import JsonResponse
 from django.conf import settings
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from .tasks import send_course_update_email
 
 
 class LessonView(APIView):
@@ -47,6 +49,14 @@ class CourseViewSet(viewsets.ModelViewSet):
         if self.request.user.groups.filter(name='Moderators').exists():
             return queryset
         return queryset.filter(owner=self.request.user)
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        previous_title = instance.title
+        serializer.save()
+
+        if previous_title != instance.title:
+            send_course_update_email.delay(instance.id)
 
 
 class LessonViewSet(viewsets.ModelViewSet):

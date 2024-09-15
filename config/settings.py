@@ -1,6 +1,9 @@
-
 from pathlib import Path
+import os
 
+from celery.schedules import crontab
+
+from .celery import app as celery_app
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -10,6 +13,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'DESKTOP-IJJ331O', 'desktop-ijj331o']
 
+__all__ = ('celery_app',)
 
 PAYMENT_METHOD_CHOICES = [
     ('cash', 'Cash'),
@@ -31,6 +35,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'drf_spectacular',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -136,3 +141,19 @@ SPECTACULAR_SETTINGS = {
 
 STRIPE_SECRET_KEY = 'sk_test_51PxW4nP2RjcJaduwNFzL8U266Z39xPuXCu9KhPY9UC6CnA0ehGZ4ERN5WspYTgOAE1aD3mQiomDQa2FCTpL21d6200HagMu2du'
 STRIPE_PUBLIC_KEY = 'pk_test_51PxW4nP2RjcJaduwmjmc5YRXaqhxCJZEbdsXuL1gCeDXE4vQBSRHtgbELIHXRtCRY6qDMpnn8axf9THh271j5raL00H08ut1qI'
+
+
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+
+CCELERY_BEAT_SCHEDULE = {
+    'example_task': {
+        'task': 'myapp.tasks.example_task',
+        'schedule': crontab(minute='*/1'),
+    },
+    'check_inactive_users_task': {
+        'task': 'users.tasks.check_inactive_users',
+        'schedule': crontab(hour=0, minute=0),
+    },
+}
