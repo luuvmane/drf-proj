@@ -1,26 +1,22 @@
 from pathlib import Path
 import os
-
 from celery.schedules import crontab
-
 from .celery import app as celery_app
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-4crdsf^@_%i9zc-2r@voim8m*#cn9bof0cyy^3kiu-++j-y!#4'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-4crdsf^@_%i9zc-2r@voim8m*#cn9bof0cyy^3kiu-++j-y!#4')
 
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'DESKTOP-IJJ331O', 'desktop-ijj331o']
-
-__all__ = ('celery_app',)
 
 PAYMENT_METHOD_CHOICES = [
     ('cash', 'Cash'),
     ('transfer', 'Bank Transfer'),
     ('credit_card', 'Credit Card'),
 ]
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -68,14 +64,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'mysite'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', '2131'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -92,30 +90,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
-
-
 STATIC_URL = 'static/'
-
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 AUTH_USER_MODEL = 'users.CustomUser'
 
-
 REST_FRAMEWORK = {
-     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
-
-from datetime import timedelta
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
@@ -130,7 +115,6 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'user_id',
 }
 
-
 SPECTACULAR_SETTINGS = {
     'TITLE': 'API Документация',
     'DESCRIPTION': 'Описание ',
@@ -138,16 +122,13 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
-
-STRIPE_SECRET_KEY = 'sk_test_51PxW4nP2RjcJaduwNFzL8U266Z39xPuXCu9KhPY9UC6CnA0ehGZ4ERN5WspYTgOAE1aD3mQiomDQa2FCTpL21d6200HagMu2du'
-STRIPE_PUBLIC_KEY = 'pk_test_51PxW4nP2RjcJaduwmjmc5YRXaqhxCJZEbdsXuL1gCeDXE4vQBSRHtgbELIHXRtCRY6qDMpnn8axf9THh271j5raL00H08ut1qI'
-
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
 
 CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 
-
-CCELERY_BEAT_SCHEDULE = {
+CELERY_BEAT_SCHEDULE = {
     'example_task': {
         'task': 'myapp.tasks.example_task',
         'schedule': crontab(minute='*/1'),
